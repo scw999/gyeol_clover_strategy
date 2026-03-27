@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>결하다 — 과금 경험 전략</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Noto+Serif+KR:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --paper: #fdfcfe;
+    --warm: #f3eff8;
+    --accent: #7c5cbf;
+    --accent-deep: #5a3d9e;
+    --accent-light: #ede8f5;
+    --accent-glow: #9678d3;
+    --red: #c44536;
+    --red-bg: #fdf0ee;
+    --gold: #9b7b2c;
+    --gold-bg: #fdf8ed;
+    --muted: #6b6b6b;
+    --border: #ddd8e8;
+    --shadow: rgba(100,70,150,0.06);
+    --lav-hero-1: #2a1f42;
+    --lav-hero-2: #4a3575;
+    --lav-hero-3: #6b52a3;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.75;
+    font-size: 15px;
+    padding: 0;
+  }
+
+  .hero {
+    background: linear-gradient(135deg, var(--lav-hero-1) 0%, var(--lav-hero-2) 40%, var(--lav-hero-3) 100%);
+    color: white;
+    padding: 80px 40px 60px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: -50%; right: -20%;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(200,180,255,0.08) 0%, transparent 70%);
+  }
+  .hero-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 20px;
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 6px 16px;
+    border-radius: 20px;
+  }
+  .hero h1 {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1.35;
+    margin-bottom: 16px;
+  }
+  .hero p {
+    font-size: 16px;
+    color: rgba(255,255,255,0.75);
+    max-width: 600px;
+    line-height: 1.8;
+  }
+  .hero-meta {
+    margin-top: 30px;
+    display: flex;
+    gap: 24px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.45);
+  }
+
+  .container {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }
+
+  .section {
+    padding: 56px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .section:last-child { border-bottom: none; }
+
+  .section-num {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--accent);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+  .section h2 {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+  .section-sub {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 28px;
+  }
+
+  .alert {
+    padding: 20px 24px;
+    border-radius: 10px;
+    margin: 20px 0;
+    font-size: 14px;
+    line-height: 1.8;
+  }
+  .alert-problem {
+    background: var(--red-bg);
+    border-left: 3px solid var(--red);
+  }
+  .alert-problem .alert-title { color: var(--red); }
+  .alert-insight {
+    background: var(--accent-light);
+    border-left: 3px solid var(--accent);
+  }
+  .alert-insight .alert-title { color: var(--accent); }
+  .alert-gold {
+    background: var(--gold-bg);
+    border-left: 3px solid var(--gold);
+  }
+  .alert-gold .alert-title { color: var(--gold); }
+  .alert-title {
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+  }
+
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 24px 0;
+  }
+  .compare-card {
+    padding: 24px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: white;
+  }
+  .compare-card.bad {
+    border-color: #e8c4c0;
+    background: #fffbfa;
+  }
+  .compare-card.good {
+    border-color: #c4b8e0;
+    background: #faf8fe;
+  }
+  .compare-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+  .compare-card.bad .compare-label { color: var(--red); }
+  .compare-card.good .compare-label { color: var(--accent); }
+  .compare-card h4 {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .compare-card p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  .name-option {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    margin: 16px 0;
+    transition: all 0.2s;
+  }
+  .name-option:hover { border-color: var(--accent); box-shadow: 0 4px 20px var(--shadow); }
+  .name-option.recommended {
+    border: 2px solid var(--accent);
+    background: #faf8fe;
+    position: relative;
+  }
+  .name-option.recommended::before {
+    content: '✦ RECOMMENDED';
+    position: absolute;
+    top: -10px; left: 20px;
+    background: var(--accent);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 3px 12px;
+    border-radius: 10px;
+  }
+  .name-main {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .name-english {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+  .name-desc {
+    font-size: 14px;
+    line-height: 1.8;
+    color: #444;
+  }
+  .name-tags {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .name-tag {
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 16px;
+    background: var(--warm);
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .name-tag.pro { background: var(--accent-light); color: var(--accent); }
+  .name-tag.con { background: var(--red-bg); color: var(--red); }
+
+  .strategy-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    margin: 16px 0;
+  }
+  .strategy-card.primary {
+    border: 2px solid var(--accent);
+    background: linear-gradient(135deg, #faf8fe 0%, #f3eff8 100%);
+  }
+  .strategy-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .strategy-icon {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    background: var(--accent-light);
+  }
+  .strategy-card.primary .strategy-icon { background: var(--accent); }
+  .strategy-title {
+    font-weight: 700;
+    font-size: 17px;
+  }
+  .strategy-subtitle {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin: 32px 0;
+    overflow-x: auto;
+    padding: 10px 0;
+  }
+  .flow-step {
+    text-align: center;
+    flex-shrink: 0;
+    min-width: 120px;
+  }
+  .flow-circle {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: var(--accent-light);
+    border: 2px solid var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin: 0 auto 10px;
+  }
+  .flow-step-title {
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 2px;
+  }
+  .flow-step-desc {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .flow-arrow {
+    flex-shrink: 0;
+    width: 40px;
+    text-align: center;
+    color: var(--accent);
+    font-size: 18px;
+    margin-top: -20px;
+  }
+
+  .price-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 20px 0;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .price-table th {
+    background: var(--accent);
+    color: white;
+    font-weight: 600;
+    padding: 14px 18px;
+    text-align: left;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+  }
+  .price-table td {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    background: white;
+  }
+  .price-table tr:last-child td { border-bottom: none; }
+  .price-table tr:nth-child(even) td { background: #faf8fe; }
+  .price-highlight {
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .doc-footer {
+    background: var(--warm);
+    padding: 40px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 2;
+  }
+
+  p { margin-bottom: 14px; }
+  strong { font-weight: 700; }
+
+  .divider {
+    width: 40px;
+    height: 2px;
+    background: var(--accent);
+    margin: 24px 0;
+  }
+
+  .quote-block {
+    border-left: 3px solid var(--accent);
+    padding: 16px 20px;
+    margin: 20px 0;
+    background: #f6f3fa;
+    border-radius: 0 8px 8px 0;
+    font-family: 'Noto Serif KR', serif;
+    font-size: 16px;
+    line-height: 1.8;
+    color: #333;
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .col-card {
+    padding: 20px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  .col-card h5 {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--accent);
+  }
+  .col-card p, .col-card li {
+    font-size: 13px;
+    color: #555;
+  }
+  .col-card ul {
+    padding-left: 16px;
+  }
+  .col-card li {
+    margin-bottom: 4px;
+  }
+
+  .clover-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 24px 0;
+  }
+  .clover-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px;
+    transition: all 0.2s;
+  }
+  .clover-card:hover {
+    border-color: var(--accent-glow);
+    box-shadow: 0 4px 16px var(--shadow);
+  }
+  .clover-card-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: var(--accent-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+  .clover-card h4 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .clover-card .cost {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .clover-card p {
+    font-size: 12.5px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  @media (max-width: 700px) {
+    .hero { padding: 50px 24px 40px; }
+    .hero h1 { font-size: 26px; }
+    .container { padding: 0 24px; }
+    .compare-grid, .two-col, .clover-grid { grid-template-columns: 1fr; }
+    .flow { flex-direction: column; }
+    .flow-arrow { transform: rotate(90deg); margin: 0; width: auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="container">
+    <div class="hero-badge">Internal Strategy Discussion</div>
+    <h1>과금 경험 전략<br>"돈을 쓰는 게 아니라, 결심을 하는 것"</h1>
+    <p>단순한 코인 충전이 아닌, 결혼을 향한 진지한 선택의 순간으로 과금 경험을 재정의하기 위한 전략 아웃라인</p>
+    <div class="hero-meta">
+      <span>결하다 Product Team</span>
+      <span>·</span>
+      <span>Design × PM Sync</span>
+      <span>·</span>
+      <span>2026.03</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- SECTION 1 -->
+<div class="section">
+  <div class="section-num">01</div>
+  <h2>왜 '클로버'가 위험한가</h2>
+  <p class="section-sub">포인트/코인 구조가 결하다의 브랜드에 미치는 영향</p>
+
+  <p>결하다의 핵심 포지셔닝은 <strong>"가입비 없는 결정사"</strong>이고, 핵심 약속은 <strong>"운명이 아니라, 실패 확률을 낮춘 소개"</strong>입니다. 이 브랜드 위에 '클로버 충전'이라는 포인트형 과금이 올라가면, 사용자는 아무리 좋은 매칭 알고리즘이 있어도 이 서비스를 <strong>데이팅앱</strong>으로 인식합니다.</p>
+
+  <div class="compare-grid">
+    <div class="compare-card bad">
+      <div class="compare-label">✕ 포인트/코인 구조가 주는 인상</div>
+      <h4>"클로버 30개 충전"</h4>
+      <p>게이미피케이션 → 가볍다 → 많이 써도 된다 → 여러 명 동시에 → 데이팅앱. 무의식적으로 '소비'의 프레임으로 전환됨. 결혼 상대를 만나는 행위가 '코인 소모'로 축소.</p>
+    </div>
+    <div class="compare-card good">
+      <div class="compare-label">✓ 우리가 원하는 인상</div>
+      <h4>"이 사람과 만남을 시작합니다"</h4>
+      <p>결심 → 신중하다 → 한 명에 집중 → 진지한 관계 → 결혼중개. 과금의 순간이 곧 '이 사람과 진지하게 만나보겠다'는 의사 표현이 됨.</p>
+    </div>
+  </div>
+
+  <div class="alert alert-problem">
+    <div class="alert-title">핵심 문제</div>
+    결하다는 <strong>정찰제 ₩100,000</strong>입니다. 1회 매칭 수락 = 10만원. 이 구조에서 '포인트 충전'은 구조적으로 불필요합니다. 10만원짜리 결정을 '클로버 몇 개'로 환산하는 순간, 가격의 심리적 무게가 희석되고, 동시에 "얼마치를 충전해야 하지?"라는 불필요한 인지 부하가 생깁니다.
+  </div>
+</div>
+
+<!-- SECTION 2 -->
+<div class="section">
+  <div class="section-num">02</div>
+  <h2>과금 전략: 3가지 방향</h2>
+  <p class="section-sub">정찰제(₩100,000/1매칭)에 맞는 과금 구조 비교</p>
+
+  <div class="strategy-card primary">
+    <div class="strategy-header">
+      <div class="strategy-icon">💎</div>
+      <div>
+        <div class="strategy-title">전략 A — 결심 기반 직접 결제</div>
+        <div class="strategy-subtitle">RECOMMENDED · 포인트 없이, 매칭 수락 시 직접 결제</div>
+      </div>
+    </div>
+    <p>포인트/코인 레이어를 완전히 제거합니다. 사용자가 매칭 리포트를 보고 "이 사람을 만나겠습니다"를 누르면, 그 순간 ₩100,000 결제가 일어납니다. <strong>과금 = 결심의 순간.</strong></p>
+    <div class="two-col">
+      <div class="col-card">
+        <h5>장점</h5>
+        <ul>
+          <li>결정사 포지셔닝과 완벽 정합</li>
+          <li>가격 투명성 (정찰제 강조)</li>
+          <li>인지 부하 최소 — 코인 환산 불필요</li>
+          <li>결제 순간의 심리적 무게 유지</li>
+          <li>데이팅앱 인상 완전 차단</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <h5>고려사항</h5>
+        <ul>
+          <li>매번 결제 프로세스 필요 (간편결제 연동 필수)</li>
+          <li>번들 할인 설계가 별도 필요</li>
+          <li>선결제/충전 대비 현금 유입 시점 늦음</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="strategy-card">
+    <div class="strategy-header">
+      <div class="strategy-icon">📜</div>
+      <div>
+        <div class="strategy-title">전략 B — 이용권 묶음 (바우처형)</div>
+        <div class="strategy-subtitle">"결이음권" 1장/3장/5장 선택 구매</div>
+      </div>
+    </div>
+    <p>포인트가 아닌 <strong>'이용권(바우처)'</strong> 개념으로 전환합니다. 클로버 같은 가상 화폐가 아니라, "3번의 만남 기회를 미리 준비한다"는 프레임. 묶음 구매 시 소폭 할인을 제공하되, 1장 단위 구매도 가능.</p>
+    <div class="two-col">
+      <div class="col-card">
+        <h5>장점</h5>
+        <ul>
+          <li>선결제로 현금 유입 조기화</li>
+          <li>묶음 할인으로 재구매 유도</li>
+          <li>'포인트 충전' 느낌 없이 결제 가능</li>
+          <li>이용권이라는 물리적 언어 → 신뢰</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <h5>고려사항</h5>
+        <ul>
+          <li>이름에 따라 여전히 '코인'처럼 느껴질 수 있음</li>
+          <li>미사용 이용권 환불 정책 필요</li>
+          <li>몇 장 사야 하지? → 약간의 인지 부하</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="strategy-card">
+    <div class="strategy-header">
+      <div class="strategy-icon">🔄</div>
+      <div>
+        <div class="strategy-title">전략 C — 하이브리드 (직접결제 + 이용권)</div>
+        <div class="strategy-subtitle">1회 직접결제 기본 + 묶음 이용권 옵션</div>
+      </div>
+    </div>
+    <p>기본은 전략 A(매칭 수락 시 직접 결제)로 운영하되, "진지하게 여러 분을 만나보고 싶은 분"을 위해 이용권 묶음 패키지를 별도 제공. 스토어 페이지에서 두 옵션을 모두 보여줌.</p>
+    <div class="two-col">
+      <div class="col-card">
+        <h5>장점</h5>
+        <ul>
+          <li>첫 사용자: 부담 없는 1회 결제 진입</li>
+          <li>활성 사용자: 묶음 할인 혜택</li>
+          <li>두 세그먼트 동시 커버</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <h5>고려사항</h5>
+        <ul>
+          <li>UI 복잡도 증가</li>
+          <li>초기 런칭에는 오버 엔지니어링일 수 있음</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-insight">
+    <div class="alert-title">PM 의견</div>
+    런칭 시점에는 <strong>전략 A(직접 결제)</strong>로 시작하고, 사용자 리텐션 데이터를 보고 전략 C로 확장하는 것을 권장합니다. 포인트 시스템은 결하다의 DNA와 충돌합니다.
+  </div>
+</div>
+
+<!-- SECTION 3 -->
+<div class="section">
+  <div class="section-num">03</div>
+  <h2>네이밍 후보</h2>
+  <p class="section-sub">과금 단위 / 결제 행위 / 스토어 이름에 대한 후보안</p>
+
+  <p>포인트를 제거하더라도, <strong>결제 행위와 스토어에 부르는 이름</strong>은 필요합니다. 아래는 과금 단위(바우처형을 쓸 경우)와 결제 행위 자체의 네이밍 후보입니다.</p>
+
+  <div class="divider"></div>
+
+  <h3 style="font-size:16px; font-weight:700; margin-bottom:20px; color:var(--accent);">A. 과금 단위 (바우처형을 쓸 경우)</h3>
+
+  <div class="name-option recommended">
+    <div class="name-main">결이음권</div>
+    <div class="name-english">Gyeol-Ieum-Gwon — "Bond-Connecting Voucher"</div>
+    <div class="name-desc">
+      결하다의 '결'과 이어준다는 '이음'을 결합. 이미 확립된 브랜드 언어이며, '권(券)'이라는 단어가 주는 공식적 느낌이 결혼중개업 맥락과 잘 맞습니다. "만남을 이어주는 공식 이용권"이라는 뉘앙스.
+    </div>
+    <div class="name-tags">
+      <span class="name-tag pro">브랜드 정합성 ◎</span>
+      <span class="name-tag pro">공식적 느낌</span>
+      <span class="name-tag pro">기존 사용</span>
+      <span class="name-tag con">다소 길다</span>
+    </div>
+  </div>
+
+  <div class="name-option">
+    <div class="name-main">만남권</div>
+    <div class="name-english">Mannam-Gwon — "Meeting Voucher"</div>
+    <div class="name-desc">
+      가장 직관적이고 쉬운 표현. "만남을 시작하는 권리"라는 뜻이 즉시 전달됩니다. 다만 결하다만의 브랜드 고유성은 약합니다.
+    </div>
+    <div class="name-tags">
+      <span class="name-tag pro">직관적</span>
+      <span class="name-tag pro">쉽다</span>
+      <span class="name-tag con">브랜드 차별화 약함</span>
+      <span class="name-tag con">범용적</span>
+    </div>
+  </div>
+
+  <div class="name-option">
+    <div class="name-main">결심권</div>
+    <div class="name-english">Gyeol-Sim-Gwon — "Resolve/Decision Voucher"</div>
+    <div class="name-desc">
+      '결심(決心)'에는 결하다의 '결'이 자연스럽게 포함됩니다. "이 사람을 만나겠다는 결심"이라는 의미 부여가 가능하며, 과금 행위에 감정적 무게를 실어줍니다.
+    </div>
+    <div class="name-tags">
+      <span class="name-tag pro">의미 깊음</span>
+      <span class="name-tag pro">'결' 포함</span>
+      <span class="name-tag pro">결제 무게감</span>
+      <span class="name-tag con">약간 무겁게 느껴질 수 있음</span>
+    </div>
+  </div>
+
+  <div class="name-option">
+    <div class="name-main">결매칭</div>
+    <div class="name-english">Gyeol-Matching — "Decisive Matching"</div>
+    <div class="name-desc">
+      가장 현대적이고 가벼운 느낌. '결(結)+매칭'으로 브랜드를 포함하면서도 쉽게 이해됩니다. "결매칭 1회 사용" 같은 표현이 자연스럽습니다. 다만 '권' 없이 단위로 쓸 수 있는지 검토 필요.
+    </div>
+    <div class="name-tags">
+      <span class="name-tag pro">현대적</span>
+      <span class="name-tag pro">쉬운 발음</span>
+      <span class="name-tag con">단위로 쓸 때 어색할 수 있음</span>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <h3 style="font-size:16px; font-weight:700; margin-bottom:20px; color:var(--accent);">B. 결제 행위의 네이밍 (버튼/UI 문구)</h3>
+
+  <p>전략 A(직접 결제)를 사용할 경우, 버튼에 들어갈 문구가 곧 과금 경험의 핵심입니다.</p>
+
+  <div class="compare-grid">
+    <div class="compare-card bad">
+      <div class="compare-label">피해야 할 표현</div>
+      <h4>❌ 데이팅앱 느낌</h4>
+      <p>"구매하기" · "코인 충전" · "클로버 사용" · "결제하기" · "포인트 차감" — 거래/소비의 언어</p>
+    </div>
+    <div class="compare-card good">
+      <div class="compare-label">권장 표현</div>
+      <h4>✓ 결정사 느낌</h4>
+      <p>"만남 시작하기" · "이 분과 만나기" · "결이음 시작" · "만남을 열다" — 관계 시작의 언어</p>
+    </div>
+  </div>
+
+  <div class="alert alert-gold">
+    <div class="alert-title">UX 카피 제안</div>
+    <strong>CTA 버튼:</strong> "이 분과 만남 시작하기"<br>
+    <strong>확인 팝업:</strong> "○○님과의 만남을 시작합니다. (₩100,000)"<br>
+    <strong>결제 완료:</strong> "만남이 시작되었습니다 💐"<br>
+    <strong>핵심 원칙:</strong> '결제'라는 단어를 사용자에게 직접 노출하지 않습니다.
+  </div>
+
+  <div class="divider"></div>
+
+  <h3 style="font-size:16px; font-weight:700; margin-bottom:20px; color:var(--accent);">C. 인앱 스토어 이름</h3>
+
+  <div class="name-option recommended">
+    <div class="name-main" style="font-size:20px;">결이음 센터</div>
+    <div class="name-english">Gyeol-Ieum Center</div>
+    <div class="name-desc">
+      스토어가 아니라 '센터'. 결하다의 Trust Center와 언어적으로 연결되며, "결이음을 시작하는 공간"이라는 느낌을 줍니다. 이용권 구매, 결제 내역, 환불 등 과금 관련 기능을 모두 포함.
+    </div>
+  </div>
+
+  <div class="name-option">
+    <div class="name-main" style="font-size:20px;">만남 준비실</div>
+    <div class="name-english">Meeting Preparation Room</div>
+    <div class="name-desc">
+      좀 더 따뜻하고 오프라인 결정사 느낌. "만남을 준비하는 공간"이라는 메타포. 이용권 구매 외에 프로필 보완, 매칭 설정 등도 함께 배치하면 자연스러움.
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 4 -->
+<div class="section">
+  <div class="section-num">04</div>
+  <h2>사용자 결제 플로우</h2>
+  <p class="section-sub">전략 A(직접 결제) 기준 — 매칭 수락부터 만남 시작까지</p>
+
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-circle">🌊</div>
+      <div class="flow-step-title">웨이브 리포트</div>
+      <div class="flow-step-desc">매칭 결과<br>파동 시각화</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-circle">📋</div>
+      <div class="flow-step-title">상세 프로필</div>
+      <div class="flow-step-desc">상대방 정보<br>매칭 타입 확인</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-circle">💜</div>
+      <div class="flow-step-title">만남 시작하기</div>
+      <div class="flow-step-desc">CTA 버튼<br>₩100,000 표시</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-circle">✋</div>
+      <div class="flow-step-title">결심 확인</div>
+      <div class="flow-step-desc">"이 분과 만남을<br>시작하시겠습니까?"</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-circle">💳</div>
+      <div class="flow-step-title">간편결제</div>
+      <div class="flow-step-desc">카카오페이/토스<br>애플페이</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-circle">💐</div>
+      <div class="flow-step-title">만남 시작</div>
+      <div class="flow-step-desc">양쪽 수락 시<br>연락처 공개</div>
+    </div>
+  </div>
+
+  <div class="alert alert-insight">
+    <div class="alert-title">양방향 결제 구조</div>
+    결하다는 <strong>매칭된 양쪽 모두</strong>가 수락해야 만남이 성사됩니다. 한 쪽만 수락하고 상대가 거절하면 결제는 이루어지지 않습니다 (혹은 즉시 환불). 이 구조 자체가 "가벼운 스와이프"와 차별화되는 핵심 장치입니다.
+  </div>
+</div>
+
+<!-- SECTION 5 -->
+<div class="section">
+  <div class="section-num">05</div>
+  <h2>가격 구조안 (바우처형 병행 시)</h2>
+  <p class="section-sub">전략 C를 채택할 경우의 가격 테이블</p>
+
+  <table class="price-table">
+    <thead>
+      <tr>
+        <th>구분</th>
+        <th>구성</th>
+        <th>가격</th>
+        <th>1회당 단가</th>
+        <th>할인율</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>단건 결제</strong></td>
+        <td>만남 1회</td>
+        <td class="price-highlight">₩100,000</td>
+        <td>₩100,000</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><strong>결이음권 3</strong></td>
+        <td>만남 3회</td>
+        <td class="price-highlight">₩270,000</td>
+        <td>₩90,000</td>
+        <td>10%</td>
+      </tr>
+      <tr>
+        <td><strong>결이음권 5</strong></td>
+        <td>만남 5회</td>
+        <td class="price-highlight">₩400,000</td>
+        <td>₩80,000</td>
+        <td>20%</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="alert alert-gold">
+    <div class="alert-title">가격 전략 포인트</div>
+    단건 결제(₩100,000)가 기준가이자 앵커 프라이스. 묶음은 "여러 분을 진지하게 만나보고 싶은 분"에게만 제안합니다. 묶음 구매를 앱 메인에서 강조하지 않고, 결이음 센터(마이페이지) 안에서만 노출 → 코인 충전 느낌 방지.
+  </div>
+</div>
+
+<!-- SECTION 6: 클로버 재설계 -->
+<div class="section">
+  <div class="section-num">06</div>
+  <h2>클로버(🍀) 재설계 — "정성의 화폐"</h2>
+  <p class="section-sub">과금과 분리된 비과금 리워드로, 상대방을 더 깊이 알아가는 데 사용</p>
+
+  <p>클로버를 과금 단위에서는 완전히 제거하되, <strong>"상대방을 더 깊이 이해하는 도구"</strong>로 전용합니다. 진지하게 활동하는 사용자에게 자연스럽게 쌓이는 보상이며, 쓸수록 더 나은 판단을 할 수 있게 도와줍니다.</p>
+
+  <div class="divider"></div>
+
+  <h3 style="font-size:16px; font-weight:700; margin-bottom:8px; color:var(--accent);">🍀 클로버 획득 방법</h3>
+  <p style="font-size:13px; color:var(--muted); margin-bottom:20px;">진지하게 활동할수록 클로버가 자연스럽게 쌓입니다</p>
+
+  <div class="two-col">
+    <div class="col-card">
+      <h5>기본 활동 보상</h5>
+      <ul>
+        <li>프로필 완성도 100% 달성 → 🍀 ×2</li>
+        <li>24문항 심리 분석 완료 → 🍀 ×1</li>
+        <li>첫 매칭 리포트 확인 → 🍀 ×1</li>
+        <li>인증 서류 제출 완료 → 🍀 ×1</li>
+      </ul>
+    </div>
+    <div class="col-card">
+      <h5>참여 보상</h5>
+      <ul>
+        <li>만남 후 양쪽 피드백 작성 → 🍀 ×2</li>
+        <li>결하다 추천인 등록 → 🍀 ×3</li>
+        <li>오프라인 결맞음 행사 참가 → 🍀 ×2</li>
+        <li>월간 프로필 업데이트 → 🍀 ×1</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <h3 style="font-size:16px; font-weight:700; margin-bottom:8px; color:var(--accent);">🍀 클로버 사용처 — "더 깊이 알아보기"</h3>
+  <p style="font-size:13px; color:var(--muted); margin-bottom:20px;">매칭 수락 전후, 상대를 더 잘 이해하기 위한 도구들</p>
+
+  <div class="clover-grid">
+    <div class="clover-card">
+      <div class="clover-card-icon">💬</div>
+      <h4>상대방 전체 답변 열람</h4>
+      <div class="cost">🍀 ×3</div>
+      <p>24문항 심리 분석에서 상대가 직접 작성한 주관식 답변 전체를 확인합니다. 요약 리포트 너머, 그 사람의 실제 말투와 사고방식을 엿볼 수 있습니다.</p>
+    </div>
+    <div class="clover-card">
+      <div class="clover-card-icon">📎</div>
+      <h4>확장 프로필 해금</h4>
+      <div class="cost">🍀 ×2</div>
+      <p>기본 프로필에 포함되지 않는 추가 정보를 확인합니다. 라이프스타일 상세, 가치관 에세이, 연애 히스토리 요약 등 심층 정보에 접근할 수 있습니다.</p>
+    </div>
+    <div class="clover-card">
+      <div class="clover-card-icon">🎬</div>
+      <h4>영상 프로필 열람</h4>
+      <div class="cost">🍀 ×4</div>
+      <p>상대방이 등록한 자기소개 영상을 확인합니다. 사진만으로는 알 수 없는 분위기, 말투, 표정을 미리 느낄 수 있어 만남 결심에 가장 강력한 판단 근거가 됩니다.</p>
+    </div>
+    <div class="clover-card">
+      <div class="clover-card-icon">🤖</div>
+      <h4>AI 궁합 코치</h4>
+      <div class="cost">🍀 ×3</div>
+      <p>AI가 나와 상대의 심리 분석 결과를 비교 분석해, 잘 맞을 포인트와 주의할 포인트를 구체적으로 조언합니다. "이 부분에서 갈등이 생길 수 있어요" 같은 맞춤 인사이트.</p>
+    </div>
+    <div class="clover-card">
+      <div class="clover-card-icon">🔍</div>
+      <h4>웨이브 심화 분석</h4>
+      <div class="cost">🍀 ×2</div>
+      <p>기본 웨이브 리포트 너머, Big Five 세부 항목별 비교 차트와 매칭 타입 상세 해석을 확인합니다. 28가지 매칭 타입 중 내가 속한 타입의 관계 패턴 해설 포함.</p>
+    </div>
+    <div class="clover-card">
+      <div class="clover-card-icon">💌</div>
+      <h4>첫인사 도우미</h4>
+      <div class="cost">🍀 ×2</div>
+      <p>만남 성사 후, AI가 상대 성향을 반영한 첫 연락 문구와 대화 주제를 제안합니다. "이 분은 이런 주제로 시작하면 자연스러워요" 같은 맞춤 가이드.</p>
+    </div>
+    <div class="clover-card">
+      <div class="clover-card-icon">📊</div>
+      <h4>나의 매력 리포트</h4>
+      <div class="cost">🍀 ×3</div>
+      <p>내 프로필에서 상대방들이 가장 많이 본 항목, 매칭 수락률 추이, 나와 잘 맞는 타입 통계를 AI가 분석해 보여줍니다. 프로필 개선에도 활용 가능.</p>
+    </div>
+    <div class="clover-card">
+      <div class="clover-card-icon">📝</div>
+      <h4>만남 준비 가이드</h4>
+      <div class="cost">🍀 ×2</div>
+      <p>만남 확정 후, 상대의 성향과 관심사를 기반으로 AI가 장소 추천, 대화 팁, 피해야 할 주제를 정리한 1:1 맞춤 만남 가이드를 제공합니다.</p>
+    </div>
+  </div>
+
+  <div class="alert alert-insight">
+    <div class="alert-title">설계 원칙</div>
+    클로버 사용처는 모두 <strong>"더 나은 판단"</strong>과 <strong>"더 나은 만남"</strong>을 돕는 것에 집중합니다. 프로필 상단 노출이나 더 많은 매칭 기회 같은 "경쟁" 요소는 의도적으로 배제합니다 — 결하다는 결을 맞추는 서비스지, 경쟁하는 서비스가 아닙니다.
+  </div>
+
+  <div class="quote-block">
+    클로버는 <strong>"돈"이 아니라 "정성"의 화폐</strong>입니다.<br>
+    충전해서 사는 것이 아니라, 진지하게 활동해서 얻는 것.<br>
+    그리고 쓰는 곳은 오직 <strong>상대를 더 깊이 이해하는 데</strong>에만.
+  </div>
+
+  <div class="alert alert-gold" style="margin-top:20px;">
+    <div class="alert-title">수익 모델 연결 포인트</div>
+    클로버 사용처 중 AI 기능(궁합 코치, 첫인사 도우미, 만남 준비 가이드, 매력 리포트)은 <strong>실제 API 비용</strong>이 발생합니다. 향후 클로버 부족 시 소액 구매 옵션(₩3,000~5,000)을 열면, 자연스럽게 부가 수익 채널이 됩니다. 핵심 과금(₩100,000 매칭)과 분리된 마이크로 과금 레이어로 기능합니다.
+  </div>
+</div>
+
+<!-- SECTION 7 -->
+<div class="section">
+  <div class="section-num">07</div>
+  <h2>디자인 싱크 포인트</h2>
+  <p class="section-sub">이번 미팅에서 결정할 것</p>
+
+  <div class="alert alert-insight" style="margin-bottom:16px;">
+    <div class="alert-title">Decision 1</div>
+    과금 구조: 직접 결제(A) vs 바우처(B) vs 하이브리드(C)?<br>
+    <em>→ 런칭 시점에는 A를 권장, 이후 C로 확장</em>
+  </div>
+  <div class="alert alert-insight" style="margin-bottom:16px;">
+    <div class="alert-title">Decision 2</div>
+    과금 단위 이름: 결이음권 vs 만남권 vs 결심권 vs 결매칭?<br>
+    <em>→ 직접 결제 시에도 영수증/내역에 표시될 명칭 필요</em>
+  </div>
+  <div class="alert alert-insight" style="margin-bottom:16px;">
+    <div class="alert-title">Decision 3</div>
+    인앱 스토어 이름: 결이음 센터 vs 만남 준비실?<br>
+    <em>→ Trust Center와의 언어적 통일성 고려</em>
+  </div>
+  <div class="alert alert-insight" style="margin-bottom:16px;">
+    <div class="alert-title">Decision 4</div>
+    클로버 사용처 우선순위: 8가지 중 런칭 시점에 어디까지 포함?<br>
+    <em>→ AI 기능(궁합 코치, 첫인사 도우미)은 API 비용과 개발 공수 고려</em>
+  </div>
+  <div class="alert alert-insight" style="margin-bottom:16px;">
+    <div class="alert-title">Decision 5</div>
+    클로버 소액 구매 옵션: 런칭 시점부터 열 것인가, 추후 열 것인가?<br>
+    <em>→ "정성의 화폐" 포지셔닝과 충돌하지 않는 선에서 결정</em>
+  </div>
+  <div class="alert alert-insight">
+    <div class="alert-title">Decision 6</div>
+    CTA 문구: "이 분과 만남 시작하기" 등 구체적 UX 카피 확정<br>
+    <em>→ 디자인 팀과 워딩 테스트 필요</em>
+  </div>
+
+  <div class="quote-block" style="margin-top:28px;">
+    "돈을 쓰는 경험이 아니라, 관계의 다음 단계로 가는 결심의 순간으로."<br>
+    모든 과금 UX의 기준은 이 한 문장입니다.
+  </div>
+</div>
+
+</div>
+
+<div class="doc-footer">
+  결하다 — 결이 맞아야, 결혼도 맞다.<br>
+  Internal Strategy Document · Not for External Distribution<br>
+  © 2026 Gyeolhada. Product Team.
+</div>
+
+</body>
+</html>
